@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Private</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 18px; /* 增大字体 */
+            margin: 40px;
+            text-align: center;
+        }
+        
+        .nav-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-item:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="margin-bottom: 40px;">作品管理</h1>
+    
+    <div class="nav-container">
+        <a href="/upload" class="nav-item">
+            <i class="fas fa-upload mr-2"></i>上传作品
+        </a>
+        <a href="/videos" class="nav-item">
+            <i class="fas fa-film mr-2"></i>查看用户作品
+        </a>
+        <a href="/videos_all" class="nav-item">
+            <i class="fas fa-th-large mr-2"></i>查看所有作品
+        </a>
+    </div>
+</body>
+</html>

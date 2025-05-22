@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>上传作品</title>
+    <style>
+        /* 设置表单为 flex 布局 */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 让 label 和 input 组合成一行并对齐 */
+        .form-group {
+            display: flex;
+            align-items: center;
+        }
+
+        label {
+            font-size: 24px;
+            width: 120px; /* 固定 label 的宽度，方便对齐 */
+        }
+
+        input {
+            font-size: 20px;
+            width: 336px; /* 设置输入框宽度 */
+        }
+
+        .required::after {
+            content: " *";
+            color: red;
+        }
+
+        input[type="submit"] {
+            align-self: flex-start; /* 让提交按钮左对齐 */
+            padding: 10px 20px;
+        }
+
+        /* 自定义视频上传区域样式 */
+        .video-upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            width: 300px;
+        }
+
+        /* 调整视频文件名提示信息的边距 */
+        #video-filename {
+            margin-left: 5px;
+            margin-top: 5px; /* 减小顶部边距 */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>上传作品</h1>
+    <form method="post" enctype="multipart/form-data">
+        <!-- 为每个 label 和 input 组合添加 form-group 类 -->
+        <div class="form-group">
+            <label for="user_id" class="required">用户ID: </label>
+            <input type="text" id="user_id" name="user_id" required>
+        </div>
+        <div class="form-group">
+            <label for="video" class="required">视频: </label>
+            <div class="video-upload-area" id="video-upload-area">
+                点击上传 或直接将视频文件拖入此区域
+            </div>
+            <input type="file" id="video" name="video" accept=".mp4" required style="display: none;">
+            <div id="video-filename" >未选择文件</div>
+        </div>
+        <div class="form-group">
+            <label for="cover">封面图片: </label>
+            <input type="file" id="cover" name="cover" accept=".jpg">
+        </div>
+        <input type="submit" value="上传">
+    </form>
+    <script>
+        const videoUploadArea = document.getElementById('video-upload-area');
+        const videoInput = document.getElementById('video');
+        const videoFilename = document.getElementById('video-filename');
+
+        // 点击上传区域触发文件选择框
+        videoUploadArea.addEventListener('click', () => {
+            videoInput.click();
+        });
+
+        // 处理拖放事件
+        videoUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            videoUploadArea.style.borderColor = 'blue';
+        });
+
+        videoUploadArea.addEventListener('dragleave', () => {
+            videoUploadArea.style.borderColor = '#ccc';
+        });
+
+        videoUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            videoUploadArea.style.borderColor = '#ccc';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                videoInput.files = files;
+                videoFilename.textContent = files[0].name;
+            }
+        });
+
+        // 处理文件选择事件
+        videoInput.addEventListener('change', () => {
+            const files = videoInput.files;
+            if (files.length > 0) {
+                videoFilename.textContent = files[0].name;
+            } else {
+                videoFilename.textContent = '未选择文件';
+            }
+        });
+    </script>
+</body>
+
+</html>    

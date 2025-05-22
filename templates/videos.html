@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>查看用户作品</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 修改这里，将 label 选择器改为 div 选择器 */
+        div {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        /* 为用户名对应的 div 元素添加左边距 */
+        .username-div {
+            margin-left: 10px;
+            margin-bottom: 6px;
+        }
+
+        /* 定义点击后的阴影效果 */
+        .username-div.clicked {
+            box-shadow: 0 0 30px rgba(129, 129, 129, 0.5);
+        }
+
+        input {
+            font-size: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 15px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        li {
+            margin: 7px;
+            flex-basis: calc(100% / 6); /* 默认每行显示 6 张图片 */
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 900px) {
+            li {
+                flex-basis: calc(100% / 4); /* 在宽度小于 900px 时，每行显示 4 张图片 */
+            }
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+            /* 添加 border-radius 属性，值可以根据需要调整 */
+            border-radius: 10px; 
+        }
+
+        input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            display: none;
+        }
+
+        /* 隐藏视频播放区域和关闭按钮 */
+        #video-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+        }
+
+        #video-player {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        #close-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        #play-mode-select {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+    </style>
+    <script>
+        function submitFormOnDivClick() {
+            const divs = document.querySelectorAll('div[data-for]');
+            divs.forEach(div => {
+                div.addEventListener('click', function () {
+                    const inputId = this.getAttribute('data-for');
+                    const input = document.getElementById(inputId);
+                    input.checked = true; // 选中对应的 input
+
+                    // 移除所有用户名的点击样式
+                    divs.forEach(d => d.classList.remove('clicked'));
+                    // 为当前点击的用户名添加点击样式
+                    this.classList.add('clicked');
+
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    const inputField = document.createElement('input');
+                    inputField.type = 'hidden';
+                    inputField.name = 'user_id';
+                    inputField.value = input.value;
+                    form.appendChild(inputField);
+                    document.body.appendChild(form);
+                    form.submit();
+                });
+            });
+        }
+    </script>
+</head>
+
+<body onload="submitFormOnDivClick()">
+    <div style="float: left; width: 15%;">
+        <h2>用户</h2>
+        <form>
+            {% for user_id in user_ids %}
+            <input type="radio" id="{{ user_id }}" name="user_id" value="{{ user_id }}">
+            <!-- 修改这里，添加类名 -->
+            <div class="username-div" data-for="{{ user_id }}">{{ user_id }}</div>
+            {% endfor %}
+        </form>
+    </div>
+    <div style="float: left; width: 80%;">
+        <h2>作品</h2>
+        {{ selected_user_id }} ({{ works|length }})
+        <ul>
+            {% if selected_user_id %}
+                {% set videoPaths = [] %}
+                {% for work_id, cover_path, video_path in works %}
+                    {% set _ = videoPaths.append(video_path) %}
+                    <li>
+                        <img src="{{ cover_path }}" alt="Cover" onclick="playVideo({{ loop.index0 }}, '{{ video_path|replace("\\", "\\\\") }}'); return false;">
+                        <div class="text-center">{{ loop.index0 + 1 }}</div>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+    <!-- 视频播放容器 -->
+    <div id="video-container">
+        <span id="close-button" onclick="closeVideo()">&times;</span>
+        <video id="video-player" controls></video>
+        <select id="play-mode-select">
+            <option value="random">随机播放</option>
+            <option value="sequential">顺序连播</option>
+            <option value="loop">循环播放</option>
+        </select>
+    </div>
+
+    <script>
+        let currentVideoIndex = 0;
+        let videoPaths = [
+            {% if selected_user_id %}
+                {% for work_id, cover_path, video_path in works %}
+                    '{{ video_path|replace("\\", "\\\\") }}',
+                {% endfor %}
+            {% endif %}
+        ];
+        const playModeSelect = document.getElementById('play-mode-select');
+
+        function playVideo(index, encodedVideoPath) {
+            currentVideoIndex = index;
+            const videoPath = encodedVideoPath;
+            // 显示视频播放容器
+            document.getElementById('video-container').style.display = 'block';
+            // 设置视频源
+            const videoPlayer = document.getElementById('video-player');
+            videoPlayer.src = videoPath;
+            // 播放视频
+            videoPlayer.play();
+        }
+
+        function closeVideo() {
+            // 隐藏视频播放容器
+            document.getElementById('video-container').style.display = 'none';
+            // 暂停视频
+            const videoPlayer = document.getElementById('video-player');
+            videoPlayer.pause();
+            // 重置视频源
+            videoPlayer.src = '';
+        }
+
+        document.addEventListener('keydown', function (event) {
+            const videoPlayer = document.getElementById('video-player');
+            if (!videoPlayer) {
+                console.error('Video player element not found.');
+                return;
+            }
+            if (videoPaths.length === 0) {
+                console.error('Video paths array is empty.');
+                return;
+            }
+            if (event.key === 'ArrowUp') {
+                // 上方向键，切换到上一个视频
+                currentVideoIndex = (currentVideoIndex - 1 + videoPaths.length) % videoPaths.length;
+                videoPlayer.src = videoPaths[currentVideoIndex];
+                videoPlayer.play();
+            } else if (event.key === 'ArrowDown') {
+                // 下方向键，切换到下一个视频
+                currentVideoIndex = (currentVideoIndex + 1) % videoPaths.length;
+                videoPlayer.src = videoPaths[currentVideoIndex];
+                videoPlayer.play();
+            }
+        });
+
+        const videoPlayer = document.getElementById('video-player');
+        videoPlayer.addEventListener('ended', function () {
+            const playMode = playModeSelect.value;
+            if (playMode === 'sequential') {
+                // 顺序连播
+                currentVideoIndex = (currentVideoIndex + 1) % videoPaths.length;
+                videoPlayer.src = videoPaths[currentVideoIndex];
+                videoPlayer.play();
+            } else if (playMode === 'random') {
+                // 随机播放
+                const randomIndex = Math.floor(Math.random() * videoPaths.length);
+                videoPlayer.src = videoPaths[randomIndex];
+                videoPlayer.play();
+            } else if (playMode === 'loop') {
+                // 循环播放
+                videoPlayer.src = videoPaths[currentVideoIndex];
+                videoPlayer.play();
+            }
+        });
+    </script>
+</body>
+
+</html>
+    
