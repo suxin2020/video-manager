@@ -202,15 +202,45 @@
                 return;
             }
             if (event.key === 'ArrowUp') {
-                // 上方向键，切换到上一个视频
-                currentVideoIndex = (currentVideoIndex - 1 + videoPaths.length) % videoPaths.length;
-                videoPlayer.src = videoPaths[currentVideoIndex];
-                videoPlayer.play();
+                const playMode = playModeSelect.value;
+                if (playMode === 'sequential') {
+                    // 顺序连播
+                    currentVideoIndex = (currentVideoIndex - 1) % videoPaths.length;
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'random') {
+                    // 随机播放
+                    for (let i = 0; i < 8; i++) {
+                        Math.random()
+                    }
+                    const randomIndex = Math.floor(Math.random() * videoPaths.length);
+                    videoPlayer.src = videoPaths[randomIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'loop') {
+                    // 循环播放
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                }
             } else if (event.key === 'ArrowDown') {
-                // 下方向键，切换到下一个视频
-                currentVideoIndex = (currentVideoIndex + 1) % videoPaths.length;
-                videoPlayer.src = videoPaths[currentVideoIndex];
-                videoPlayer.play();
+                const playMode = playModeSelect.value;
+                if (playMode === 'sequential') {
+                    // 顺序连播
+                    currentVideoIndex = (currentVideoIndex + 1) % videoPaths.length;
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'random') {
+                    // 随机播放
+                    for (let i = 0; i < 8; i++) {
+                        Math.random()
+                    }
+                    const randomIndex = Math.floor(Math.random() * videoPaths.length);
+                    videoPlayer.src = videoPaths[randomIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'loop') {
+                    // 循环播放
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                }
             }
         });
 
@@ -224,6 +254,9 @@
                 videoPlayer.play();
             } else if (playMode === 'random') {
                 // 随机播放
+                for (let i = 0; i < 8; i++) {
+                    Math.random()
+                }
                 const randomIndex = Math.floor(Math.random() * videoPaths.length);
                 videoPlayer.src = videoPaths[randomIndex];
                 videoPlayer.play();
