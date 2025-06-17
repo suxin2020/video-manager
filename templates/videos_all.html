@@ -244,6 +244,59 @@
             }
         });
 
+        document.addEventListener('wheel', function (event) {
+            const videoPlayer = document.getElementById('video-player');
+            if (!videoPlayer) {
+                console.error('Video player element not found.');
+                return;
+            }
+            if (videoPaths.length === 0) {
+                console.error('Video paths array is empty.');
+                return;
+            }
+            if (event.deltaY < 0) {
+                const playMode = playModeSelect.value;
+                if (playMode === 'sequential') {
+                    // 顺序连播
+                    currentVideoIndex = (currentVideoIndex - 1) % videoPaths.length;
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'random') {
+                    // 随机播放
+                    for (let i = 0; i < 8; i++) {
+                        Math.random()
+                    }
+                    const randomIndex = Math.floor(Math.random() * videoPaths.length);
+                    videoPlayer.src = videoPaths[randomIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'loop') {
+                    // 循环播放
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                }
+            } else if (event.deltaY > 0) {
+                const playMode = playModeSelect.value;
+                if (playMode === 'sequential') {
+                    // 顺序连播
+                    currentVideoIndex = (currentVideoIndex + 1) % videoPaths.length;
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'random') {
+                    // 随机播放
+                    for (let i = 0; i < 8; i++) {
+                        Math.random()
+                    }
+                    const randomIndex = Math.floor(Math.random() * videoPaths.length);
+                    videoPlayer.src = videoPaths[randomIndex];
+                    videoPlayer.play();
+                } else if (playMode === 'loop') {
+                    // 循环播放
+                    videoPlayer.src = videoPaths[currentVideoIndex];
+                    videoPlayer.play();
+                }
+            }
+        });        
+
         const videoPlayer = document.getElementById('video-player');
         videoPlayer.addEventListener('ended', function () {
             const playMode = playModeSelect.value;

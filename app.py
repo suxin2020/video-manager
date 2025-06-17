@@ -1,12 +1,12 @@
 import os
+import shutil
 import sqlite3
 import cv2
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 
 app = Flask(__name__)
+VIDEOS_DB = 'data/videos.db'
 UPLOAD_FOLDER = 'uploads'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'jpg', 'mp4'}
@@ -15,14 +15,17 @@ ALLOWED_EXTENSIONS = {'jpg', 'mp4'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
-def create_table():
+@app.route('/create')
+def create():
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
     conn = sqlite3.connect('data/videos.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS videos
                  (user_id TEXT, work_id TEXT, cover_path TEXT, video_path TEXT)''')
     conn.commit()
     conn.close()
+    return 'True'
 
 @app.route('/')
 def index():
@@ -103,8 +106,14 @@ def videos_all():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route('/delete')
+def delete():
+    if os.path.exists(VIDEOS_DB):
+        os.remove(VIDEOS_DB)
+    shutil.rmtree(UPLOAD_FOLDER)
+    return 'True'
 
 if __name__ == '__main__':
-    create_table()
+    create()
     app.run(port=5002)
     
